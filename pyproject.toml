@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "parquet-inspector"
+version = "0.1.0"
+description = "CLI tool for inspecting parquet files."
+authors = ["Dominic Thorn <dominic.thorn@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.scripts]
+pqi = "parquet_inspector.main:main"
+
+[tool.poetry.dependencies]
+python = "^3.6.2"
+pyarrow = ">=6.0.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.0.0"
+black = "^21.5b2"
+flake8 = "^3.9.2"
+mypy = "^0.910"
+tox = "^3.27.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 79
