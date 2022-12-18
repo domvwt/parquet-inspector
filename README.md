@@ -57,7 +57,7 @@ b: struct<c: bool, d: timestamp[ms]>
 
 ```bash
 # Print the first 5 rows of a parquet file (default is 10)
-$ pqi  -n 5 head my_file.parquet
+$ pqi -n 5 head my_file.parquet
 {"a": [1, 2], "b": {"c": true, "d": "1991-02-03 00:00:00"}}
 {"a": [3, 4, 5], "b": {"c": false, "d": "2019-04-01 00:00:00"}}
 {"a": [6, 7], "b": {"c": true, "d": "2019-04-01 00:00:00"}}
@@ -67,7 +67,7 @@ $ pqi  -n 5 head my_file.parquet
 
 ```bash
 # Print the last 5 rows of a parquet file
-$ pqi  -n 5 tail my_file.parquet
+$ pqi -n 5 tail my_file.parquet
 {"a": [6, 7], "b": {"c": true, "d": "2019-04-01 00:00:00"}}
 {"a": [8, 9], "b": {"c": false, "d": "2019-04-01 00:00:00"}}
 {"a": [10, 11], "b": {"c": true, "d": "2019-04-01 00:00:00"}}
