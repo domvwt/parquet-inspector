@@ -1,9 +1,11 @@
 import shutil
 import tempfile
-import pytest
 from pathlib import Path
-from pyarrow import parquet as pq  # type: ignore
+
+import pytest
 from pyarrow import json as pj  # type: ignore
+from pyarrow import parquet as pq  # type: ignore
+
 import parquet_inspector.main as main
 
 

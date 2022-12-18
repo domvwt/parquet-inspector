@@ -1,16 +1,16 @@
 """Command line interface for inspecting parquet files."""
 import ast
-import textwrap
 import json
 import sys
+import textwrap
 from argparse import ArgumentParser
 from pathlib import Path
-from typing import Any, List, Optional, Union, Callable
 from types import SimpleNamespace
+from typing import Any, Callable, List, Optional, Union
 
 from pyarrow import Table  # type: ignore
-from pyarrow import parquet as pq  # type: ignore
 from pyarrow import json as pa_json  # type: ignore
+from pyarrow import parquet as pq  # type: ignore
 
 from . import __version__
 
@@ -37,14 +37,6 @@ class ProcessedArgs(SimpleNamespace):
         self.use_threads = args.threads
         self.memory_map = args.mmap
         self.output = _parse_output(getattr(args, "output", None))
-
-
-def _parse_output(output: Optional[str]) -> Optional[Path]:
-    """Parse output option."""
-    if output:
-        path = Path(output)
-        return path
-    return None
 
 
 def metadata(args: ProcessedArgs) -> None:
@@ -268,6 +260,14 @@ def _parse_filters(filters: Optional[str]) -> Union[List[Any], None]:
         )
         print(msg)
         sys.exit(1)
+
+
+def _parse_output(output: Optional[str]) -> Optional[Path]:
+    """Parse output option."""
+    if output:
+        path = Path(output)
+        return path
+    return None
 
 
 def _parse_args(parser: ArgumentParser, args: Any) -> ProcessedArgs:
