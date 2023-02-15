@@ -1,10 +1,10 @@
 """Command line interface for inspecting parquet files."""
 import ast
 import json
+import os
 import sys
 import textwrap
 from argparse import ArgumentParser
-from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, Callable, List, Optional, Union
 
@@ -18,14 +18,14 @@ from . import __version__
 class ProcessedArgs(SimpleNamespace):
     """Processed CLI options."""
 
-    SOURCE: Path
+    SOURCE: str
     func: Callable
     columns: Optional[List[str]]
     nrows: int
     filters: Optional[List[Any]]
     use_threads: bool
     memory_map: bool
-    output: Optional[Path]
+    output: Optional[str]
 
     def __init__(self, args: Any):
         """Initialise."""
@@ -86,7 +86,7 @@ def to_json(args: ProcessedArgs) -> None:
     """convert parquet file to jsonl"""
     table = _read_table(args)
     if not args.output:
-        args.output = args.SOURCE.with_suffix(".jsonl")
+        args.output = os.path.splitext(args.SOURCE)[0] + ".jsonl"
     with open(args.output, "w") as f:
         for row in _take_record_dict(table, len(table)):  # pragma: no cover
             f.write(row + "\n")
@@ -96,7 +96,7 @@ def to_parquet(args: ProcessedArgs) -> None:
     """convert jsonl file to parquet"""
     table = pa_json.read_json(args.SOURCE)
     if not args.output:
-        args.output = args.SOURCE.with_suffix(".parquet")
+        args.output = os.path.splitext(args.SOURCE)[0] + ".parquet"
     pq.write_table(table, args.output)
 
 
@@ -162,7 +162,7 @@ def get_parser() -> ArgumentParser:
     ]
 
     for p in all_parsers:
-        p.add_argument("SOURCE", type=Path, help="path to parquet file")
+        p.add_argument("SOURCE", type=str, help="path to parquet file")
 
     column_reading_parsers = [
         schema_parser,
@@ -214,6 +214,17 @@ def _clean_string(text: str) -> str:
 
 def _read_table(args: ProcessedArgs) -> Table:
     """Read a parquet file into a table."""
+    if os.path.isdir(args.SOURCE):
+        # If SOURCE is a directory, read as a partitioned parquet dataset
+        return pq.ParquetDataset(
+            args.SOURCE,
+            memory_map=args.memory_map,
+            filters=args.filters,
+        ).read(
+            columns=args.columns,
+            use_threads=args.use_threads,
+        )
+    # If SOURCE is a file, read as normal
     return pq.read_table(
         args.SOURCE,
         columns=args.columns,
@@ -262,10 +273,10 @@ def _parse_filters(filters: Optional[str]) -> Union[List[Any], None]:
         sys.exit(1)
 
 
-def _parse_output(output: Optional[str]) -> Optional[Path]:
+def _parse_output(output: Optional[str]) -> Optional[str]:
     """Parse output option."""
     if output:
-        path = Path(output)
+        path = str(output)
         return path
     return None
 

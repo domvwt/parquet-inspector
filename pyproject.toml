@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "parquet-inspector"
-version = "0.1.0"
+version = "0.1.1"
 description = "CLI tool for inspecting parquet files."
 authors = ["Dominic Thorn <dominic.thorn@gmail.com>"]
 license = "MIT"

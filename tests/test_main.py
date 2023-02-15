@@ -278,3 +278,23 @@ def test_mmap(capsys):
 {"a": [3, 4, 5], "b": {"c": false, "d": "2019-04-01 00:00:00"}}
 """
     )
+
+
+def test_read_partitioned_parquet(capsys):
+    parse_test_args(
+        [
+            "head",
+            "tests/data/parquet/partitioned.parquet",
+        ]
+    )
+    captured = capsys.readouterr()
+    assert (
+        captured.out
+        == """\
+{"a": 2, "b": "False", "c": "2019-04-01"}
+{"a": 4, "b": "False", "c": "2019-04-01"}
+{"a": 1, "b": "True", "c": "1991-02-03"}
+{"a": 3, "b": "True", "c": "2019-04-01"}
+{"a": 5, "b": "True", "c": "2019-04-01"}
+"""
+    )
