@@ -222,8 +222,19 @@ def _clean_string(text: str) -> str:
 
 def _read_table(args: ProcessedArgs) -> Table:
     """Read a parquet file into a table."""
-    if os.path.isdir(args.SOURCE):
-        # If SOURCE is a directory, read as a partitioned parquet dataset
+    # Try reading SOURCE as a normal file.
+    try:
+        return pq.read_table(
+            args.SOURCE,
+            columns=args.columns,
+            use_threads=args.use_threads,
+            memory_map=args.memory_map,
+            filters=args.filters,
+        )
+    except OSError:
+        pass
+    # If it fails, try reading it as a partitioned dataset.
+    try:
         return pq.ParquetDataset(
             args.SOURCE,
             memory_map=args.memory_map,
@@ -232,14 +243,10 @@ def _read_table(args: ProcessedArgs) -> Table:
             columns=args.columns,
             use_threads=args.use_threads,
         )
-    # If SOURCE is a file, read as normal
-    return pq.read_table(
-        args.SOURCE,
-        columns=args.columns,
-        use_threads=args.use_threads,
-        memory_map=args.memory_map,
-        filters=args.filters,
-    )
+    except OSError:
+        raise ValueError(
+            f"Failed to read: {args.SOURCE}"
+        )
 
 
 def _take_record_dict(table: Table, n: int, head: bool = True) -> Table:

@@ -185,8 +185,7 @@ def test_validate_fail(capsys):
         parse_test_args(["validate", "tests/data/parquet/2.parquet"])
     captured = capsys.readouterr()
     assert captured.out == (
-        "Could not open Parquet input source 'tests/data/parquet/2.parquet': "
-        "Couldn't deserialize thrift: TProtocolException: Invalid data\n"
+        "Failed to read: tests/data/parquet/2.parquet\n"
     )
 
 
