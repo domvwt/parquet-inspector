@@ -41,12 +41,20 @@ class ProcessedArgs(SimpleNamespace):
 
 def metadata(args: ProcessedArgs) -> None:
     """print file metadata"""
-    print(_clean_string(str(pq.read_metadata(args.SOURCE))))
+    try:
+        print(_clean_string(str(pq.read_metadata(args.SOURCE))))
+    except OSError:
+        print("Error: Use the `metadata` command on a valid partition.")
+        sys.exit(1)
 
 
 def schema(args: ProcessedArgs) -> None:
     """print data schema"""
-    print(str(pq.read_schema(args.SOURCE)))
+    try:
+        print(str(pq.read_schema(args.SOURCE)))
+    except OSError:
+        print("Error: Use the `schema` command on a valid partition.")
+        sys.exit(1)
 
 
 def head(args: ProcessedArgs) -> None:

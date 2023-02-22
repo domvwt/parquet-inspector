@@ -280,7 +280,7 @@ def test_mmap(capsys):
     )
 
 
-def test_read_partitioned_parquet(capsys):
+def test_read_partitioned(capsys):
     parse_test_args(
         [
             "head",
@@ -291,10 +291,70 @@ def test_read_partitioned_parquet(capsys):
     assert (
         captured.out
         == """\
-{"a": 2, "b": "False", "c": "2019-04-01"}
-{"a": 4, "b": "False", "c": "2019-04-01"}
-{"a": 1, "b": "True", "c": "1991-02-03"}
-{"a": 3, "b": "True", "c": "2019-04-01"}
-{"a": 5, "b": "True", "c": "2019-04-01"}
+{"a": [1, 2], "b": {"c": true, "d": "1991-02-03 00:00:00"}}
+{"a": [3, 4, 5], "b": {"c": false, "d": "2019-04-01 00:00:00"}}
+{"a": [1, 2], "b": {"c": true, "d": "1991-02-03 00:00:00"}}
+{"a": [3, 4, 5], "b": {"c": false, "d": "2019-04-01 00:00:00"}}
 """
     )
+
+
+def test_metadata_partitioned(capsys):
+    with pytest.raises(SystemExit):
+        parse_test_args(
+            [
+                "metadata",
+                "tests/data/parquet/partitioned.parquet",
+            ]
+        )
+    captured = capsys.readouterr()
+    assert (
+        captured.out
+        == """\
+Error: Use the `metadata` command on a valid partition.
+"""
+    )
+
+
+def test_schema_partitioned(capsys):
+    with pytest.raises(SystemExit):
+        parse_test_args(
+            [
+                "schema",
+                "tests/data/parquet/partitioned.parquet",
+            ]
+        )
+    captured = capsys.readouterr()
+    assert (
+        captured.out
+        == """\
+Error: Use the `schema` command on a valid partition.
+"""
+    )
+
+
+def test_validate_partitioned(capsys):
+    parse_test_args(
+        [
+            "validate",
+            "tests/data/parquet/partitioned.parquet",
+        ]
+    )
+    captured = capsys.readouterr()
+    assert captured.out == "OK\n"
+
+
+def test_to_json_file_partitioned_no_output(capsys):
+    expected_json = """\
+{"a": [1, 2], "b": {"c": true, "d": "1991-02-03 00:00:00"}}
+{"a": [3, 4, 5], "b": {"c": false, "d": "2019-04-01 00:00:00"}}
+{"a": [1, 2], "b": {"c": true, "d": "1991-02-03 00:00:00"}}
+{"a": [3, 4, 5], "b": {"c": false, "d": "2019-04-01 00:00:00"}}
+"""
+    with tempfile.TemporaryDirectory() as f1:
+        new_name = str(Path(f1) / "partitioned.parquet")
+        shutil.copytree("tests/data/parquet/partitioned.parquet", new_name)
+        parse_test_args(["to-jsonl", new_name])
+        f2 = Path(new_name).with_suffix(".jsonl")
+        actual_json = f2.read_text()
+        assert actual_json == expected_json
