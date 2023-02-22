@@ -6,7 +6,7 @@ import sys
 import textwrap
 from argparse import ArgumentParser
 from types import SimpleNamespace
-from typing import Any, Callable, List, Optional, Union
+from typing import Any, Callable
 
 from pyarrow import Table  # type: ignore
 from pyarrow import json as pa_json  # type: ignore
@@ -20,12 +20,12 @@ class ProcessedArgs(SimpleNamespace):
 
     SOURCE: str
     func: Callable
-    columns: Optional[List[str]]
+    columns: list[str] | None
     nrows: int
-    filters: Optional[List[Any]]
+    filters: list[Any] | None
     use_threads: bool
     memory_map: bool
-    output: Optional[str]
+    output: str | None
 
     def __init__(self, args: Any):
         """Initialise."""
@@ -252,14 +252,14 @@ def _take_record_dict(table: Table, n: int, head: bool = True) -> Table:
     )
 
 
-def _parse_columns(columns: Optional[str]) -> Union[List[str], None]:
+def _parse_columns(columns: str | None) -> list[str] | None:
     """Parse a comma-separated list of columns."""
     if not columns:
         return None
     return [c.strip() for c in columns.split(",")]
 
 
-def _parse_filters(filters: Optional[str]) -> Union[List[Any], None]:
+def _parse_filters(filters: str | None) -> list[Any] | None:
     """Parse a DNF filter string into a list of filters."""
     if not filters:
         return None
@@ -275,7 +275,7 @@ def _parse_filters(filters: Optional[str]) -> Union[List[Any], None]:
         sys.exit(1)
 
 
-def _parse_output(output: Optional[str]) -> Optional[str]:
+def _parse_output(output: str | None) -> str | None:
     """Parse output option."""
     if output:
         path = str(output)
